@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header text-center">
+            <h2>
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" width="30" height="30" class="d-inline-block align-top" alt="WalletScope Logo"> WalletScope
+            </h2>
+            <p class="text-muted">Track your expenses, master your finances</p>
+        </div>
+        <div class="auth-body">
+            <div class="auth-tabs">
+                <button class="auth-tab-btn {% if request.endpoint == 'auth.login' %}active{% endif %}"
+                        onclick="switchTab('login')">Login</button>
+                <button class="auth-tab-btn {% if request.endpoint == 'auth.register' %}active{% endif %}"
+                        onclick="switchTab('register')">Register</button>
+            </div>
+
+            <div id="login-panel" class="auth-panel {% if request.endpoint == 'auth.login' %}active{% endif %}">
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ login_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ login_form.email.label(class="form-label") }}
+                        {% if login_form.email.errors %}
+                            {{ login_form.email(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in login_form.email.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ login_form.email(class="form-control", placeholder="you@example.com") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ login_form.password.label(class="form-label") }}
+                        {% if login_form.password.errors %}
+                            {{ login_form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in login_form.password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ login_form.password(class="form-control", placeholder="••••••") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group auth-btn-container">
+                        {{ login_form.submit(class="btn btn-primary auth-submit-btn") }}
+                    </div>
+                </form>
+            </div>
+
+            <div id="register-panel" class="auth-panel {% if request.endpoint == 'auth.register' %}active{% endif %}">
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    {{ register_form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ register_form.email.label(class="form-label") }}
+                        {% if register_form.email.errors %}
+                            {{ register_form.email(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in register_form.email.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ register_form.email(class="form-control", placeholder="you@example.com") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ register_form.password.label(class="form-label") }}
+                        {% if register_form.password.errors %}
+                            {{ register_form.password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in register_form.password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ register_form.password(class="form-control", placeholder="••••••") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ register_form.confirm_password.label(class="form-label") }}
+                        {% if register_form.confirm_password.errors %}
+                            {{ register_form.confirm_password(class="form-control is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in register_form.confirm_password.errors %}
+                                <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ register_form.confirm_password(class="form-control", placeholder="••••••") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group auth-btn-container">
+                        {{ register_form.submit(class="btn btn-primary auth-submit-btn") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        // Hide all panels
+        document.querySelectorAll('.auth-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        // Deactivate all tabs
+        document.querySelectorAll('.auth-tab-btn').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Activate the selected tab and panel
+        document.getElementById(tabName + '-panel').classList.add('active');
+        document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+
+        // Update form action URL
+        if (tabName === 'login') {
+            window.history.replaceState({}, '', "{{ url_for('auth.login') }}");
+        } else if (tabName === 'register') {
+            window.history.replaceState({}, '', "{{ url_for('auth.register') }}");
+        }
+    }
+</script>
+{% endblock content %}

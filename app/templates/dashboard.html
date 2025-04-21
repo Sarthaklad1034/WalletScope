@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid ">
+    <!-- Dashboard Header -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <h1 class="mb-2">Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Total Balance Card -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body py-3">
+                    <h5 class="card-title mb-2">Total Balance</h5>
+                    <h2 class="mb-1">₹{{ "%.2f"|format(balance) }}</h2>
+                    <p class="text-muted mb-0 {% if balance_change_pct > 0 %}text-success{% elif balance_change_pct < 0 %}text-danger{% endif %}">
+                        {% if balance_change_pct > 0 %}+{% elif balance_change_pct < 0 %}-{% endif %}{{ "%.1f"|format(balance_change_pct|abs) }}% from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Expenses Card -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body py-3">
+                    <h5 class="card-title mb-2">Monthly Expenses</h5>
+                    <h2 class="mb-1">₹{{ "%.2f"|format(total_expenses) }}</h2>
+                    <p class="text-muted mb-0 {% if expense_change_pct > 0 %}text-danger{% elif expense_change_pct < 0 %}text-success{% endif %}">
+                        {% if expense_change_pct > 0 %}+{% elif expense_change_pct < 0 %}-{% endif %}{{ "%.1f"|format(expense_change_pct|abs) }}% from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Status Card -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body py-3">
+                    <h5 class="card-title mb-2">Budget Status</h5>
+                    <h2 class="mb-1 {% if budget_percentage > 100 %}text-danger{% elif budget_percentage > 80 %}text-warning{% else %}text-success{% endif %}">
+                        {{ "%.0f"|format(budget_percentage) }}%
+                    </h2>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar {% if budget_percentage > 100 %}bg-danger{% elif budget_percentage > 80 %}bg-warning{% else %}bg-success{% endif %}"
+                             role="progressbar"
+                             style="width: {{ budget_percentage if budget_percentage <= 100 else 100 }}%;"
+                             aria-valuenow="{{ budget_percentage }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0">₹{{ "%.2f"|format(budget_remaining) }} remaining</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Savings Rate Card -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card h-100">
+                <div class="card-body py-3">
+                    <h5 class="card-title mb-2">Savings Rate</h5>
+                    <h2 class="mb-1 {% if savings_rate > 20 %}text-success{% elif savings_rate > 10 %}text-warning{% else %}text-danger{% endif %}">
+                        {{ "%.0f"|format(savings_rate) }}%
+                    </h2>
+                    <p class="text-muted mb-0 {% if savings_rate_change > 0 %}text-success{% elif savings_rate_change < 0 %}text-danger{% endif %}">
+                        {% if savings_rate_change > 0 %}+{% elif savings_rate_change < 0 %}-{% endif %}{{ "%.1f"|format(savings_rate_change|abs) }}% from last month
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-3">
+        <!-- Expense Categories Chart -->
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Expense Categories</h5>
+                    <div class="chart-container" style="position: relative;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expense Overview Chart -->
+        <div class="col-12 col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Expense Overview</h5>
+                    <div class="chart-container" style="position: relative;">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get device width for responsive adjustments
+    const isMobile = window.innerWidth < 768;
+    const isSmallScreen = window.innerWidth < 992;
+
+    // Initialize pie chart
+    const pieCtx = document.getElementById('pieChart');
+    const pieData = {{ pie_data|safe }};
+
+    if (pieCtx && pieData && pieData.labels && pieData.labels.length > 0) {
+        window.pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: pieData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: isMobile ? 'bottom' : 'right',
+                        align: 'start',
+                        labels: {
+                            boxWidth: isMobile ? 10 : 12,
+                            padding: isMobile ? 10 : 15,
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        }
+                    },
+                    title: {
+                        display: false // Remove title as it's redundant with card title
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += new Intl.NumberFormat('en-IN', {
+                                        style: 'currency',
+                                        currency: 'INR'
+                                    }).format(context.parsed);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else if (pieCtx) {
+        // Handle empty data
+        const noDataDiv = document.createElement('div');
+        noDataDiv.className = 'text-center py-5 text-muted';
+        noDataDiv.innerHTML = 'No expense data available for this month';
+        pieCtx.parentNode.replaceChild(noDataDiv, pieCtx);
+    }
+
+    // Initialize line chart
+    const lineCtx = document.getElementById('lineChart');
+    const lineData = {{ line_data|safe }};
+
+    if (lineCtx && lineData) {
+        // Adjust dataset display for better mobile visibility
+        if (lineData.datasets) {
+            lineData.datasets.forEach(dataset => {
+                dataset.borderWidth = isMobile ? 2 : 3;
+                dataset.pointRadius = isMobile ? 2 : 3;
+
+                // Make sure the budget line is clearly visible
+                if (dataset.label.includes('Budget')) {
+                    dataset.borderDash = [5, 5]; // Dashed line for budget
+                }
+            });
+        }
+
+        window.lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: lineData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false // Remove title as it's redundant with card title
+                    },
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: isMobile ? 10 : 12,
+                            padding: isMobile ? 8 : 10,
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('en-IN', {
+                                        style: 'currency',
+                                        currency: 'INR'
+                                    }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: !isMobile, // Hide axis title on mobile
+                            text: 'Amount (₹)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                if (isMobile) {
+                                    // Shorter format for mobile
+                                    return '₹' + (value >= 1000 ? (value/1000) + 'K' : value);
+                                }
+                                return '₹' + value.toLocaleString('en-IN');
+                            },
+                            font: {
+                                size: isMobile ? 9 : 11
+                            },
+                            maxTicksLimit: isMobile ? 5 : 8 // Limit ticks on mobile
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: !isMobile, // Hide axis title on mobile
+                            text: 'Month'
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            },
+                            maxRotation: isMobile ? 45 : 0, // Rotate labels on mobile if needed
+                            minRotation: isMobile ? 45 : 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Handle resize events for chart responsiveness
+    window.addEventListener('resize', function() {
+        const newIsMobile = window.innerWidth < 768;
+
+        // Update pie chart configuration
+        if (window.pieChart) {
+            window.pieChart.options.plugins.legend.position = newIsMobile ? 'bottom' : 'right';
+            window.pieChart.options.plugins.legend.labels.font.size = newIsMobile ? 10 : 12;
+            window.pieChart.options.plugins.legend.labels.boxWidth = newIsMobile ? 10 : 12;
+            window.pieChart.update();
+        }
+
+        // Update line chart configuration
+        if (window.lineChart) {
+            window.lineChart.options.scales.y.ticks.callback = function(value) {
+                if (newIsMobile) {
+                    return '₹' + (value >= 1000 ? (value/1000) + 'K' : value);
+                }
+                return '₹' + value.toLocaleString('en-IN');
+            };
+            window.lineChart.options.scales.y.title.display = !newIsMobile;
+            window.lineChart.options.scales.x.title.display = !newIsMobile;
+            window.lineChart.options.scales.y.ticks.font.size = newIsMobile ? 9 : 11;
+            window.lineChart.options.scales.x.ticks.font.size = newIsMobile ? 9 : 11;
+            window.lineChart.options.scales.x.ticks.maxRotation = newIsMobile ? 45 : 0;
+            window.lineChart.update();
+        }
+    });
+});
+</script>
+{% endblock content %}

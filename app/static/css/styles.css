@@ -1,0 +1,1080 @@
+/* 
+ * WalletScope - Main Stylesheet
+ * A comprehensive expense tracking application
+ * Organized by component categories for easier maintenance
+ */
+
+
+/* ========== GLOBAL VARIABLES ========== */
+
+:root {
+    /* Main Colors */
+    --primary-color: #4a6eb5;
+    --primary-light: #6d8cc9;
+    --primary-dark: #345293;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+
+    /* Neutral Colors - Light Theme */
+    --dark: #343a40;
+    --gray-dark: #495057;
+    --gray: #6c757d;
+    --gray-light: #ced4da;
+    --light: #f8f9fa;
+    --bg-color: #f5f7fb;
+    --text-color: #343a40;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+    --table-header-bg: rgba(240, 242, 245, 0.5);
+
+    /* Spacing */
+    --spacer: 1rem;
+
+    /* Shadows */
+    --shadow-sm: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    --shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, .175);
+
+    /* Border Radius */
+    --border-radius: 0.25rem;
+    --border-radius-lg: 0.5rem;
+}
+
+
+/* ========== BASE STYLES ========== */
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+    padding-bottom: 2rem;
+}
+
+footer {
+    flex-shrink: 0;
+    background-color: var(--light);
+    border-top: 1px solid var(--border-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+
+/* ========== NAVBAR STYLES ========== */
+
+.navbar {
+    padding: 0.75rem 0;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    margin-right: 2rem;
+    color: var(--primary-color) !important;
+}
+
+.navbar-nav .nav-item {
+    margin: 0 0.25rem;
+    position: relative;
+}
+
+.navbar-nav .nav-link {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: var(--gray-dark);
+    transition: color 0.2s ease;
+    border-bottom: none;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link.active {
+    background-color: transparent;
+    font-weight: 600;
+    color: var(--primary-color) !important;
+    position: relative;
+    border-bottom: none;
+    text-decoration: none;
+}
+
+.navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px 3px 0 0;
+}
+
+
+/* ========== CARD STYLES ========== */
+
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    background-color: var(--card-bg);
+    height: calc(100% - 1.5rem);
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.card-header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.card-body {
+    padding: 1.5rem;
+    color: var(--text-color);
+}
+
+.card-footer {
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+}
+
+.card-title {
+    color: var(--gray);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+
+/* ========== FORM STYLES ========== */
+
+.form-control,
+.form-select {
+    border: 1px solid var(--gray-light);
+    border-radius: var(--border-radius);
+    padding: 0.625rem 0.75rem;
+    box-shadow: none;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    background-color: #ffffff;
+    color: var(--dark);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.2rem rgba(74, 110, 181, 0.25);
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+
+/* ========== BUTTON STYLES ========== */
+
+.btn {
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #ffffff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-outline-secondary:hover {
+    color: white;
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+
+/* ========== TABLE STYLES ========== */
+
+.table {
+    margin-bottom: 0;
+    color: var(--text-color);
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--gray-dark);
+    border-top: none;
+    background-color: var(--table-header-bg);
+    border-bottom: 2px solid var(--border-color);
+    text-align: center;
+}
+
+.table td {
+    vertical-align: middle;
+    color: var(--text-color);
+    text-align: center;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(74, 110, 181, 0.05);
+}
+
+
+/* ========== BADGE STYLES ========== */
+
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+}
+
+
+/* ========== ALERT STYLES ========== */
+
+.alert {
+    border-radius: var(--border-radius-lg);
+    border: none;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem 1.25rem;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: var(--info-color);
+}
+
+
+/* ========== MODAL STYLES ========== */
+
+.modal-content {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    background-color: var(--card-bg);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+    color: var(--text-color);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    color: var(--text-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+}
+
+
+/* ========== UTILITY CLASSES ========== */
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.text-warning {
+    color: var(--warning-color) !important;
+}
+
+.section-header {
+    color: var(--text-color);
+}
+
+.fadeIn {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+
+/* ========== PAGE-SPECIFIC STYLES ========== */
+
+/* ===== DASHBOARD PAGE ===== */
+
+.dashboard .card {
+    height: 100%;
+}
+
+.dashboard .card-title {
+    color: var(--gray);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard .card h2 {
+    margin-bottom: 0.25rem;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: var(--text-color);
+}
+
+.dashboard .text-muted {
+    font-size: 0.875rem;
+    color: var(--gray);
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.card.h-100 .chart-container {
+    min-height: 300px;
+}
+
+#pieChart {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Chart legend styling */
+.chartjs-legend,
+canvas + ul.chartjs-legend {
+    margin-top: 1rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+}
+
+.chartjs-legend li {
+    display: flex;
+    align-items: center;
+    margin: 0.25rem 0.5rem;
+}
+
+.chartjs-legend li span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 0.5rem;
+    border-radius: 2px;
+}
+
+/* Category Labels */
+.category-label {
+    color: #ffffff;
+    background-color: var(--primary-color);
+}
+
+/* ===== Expenses PAGE ===== */
+I understand you'd prefer a solution that allows proper alignment without horizontal scrolling. Let's create a responsive table that adapts to different screen sizes while maintaining proper alignment.
+Here's an improved approach that will:
+
+Keep the table properly aligned at various screen sizes
+Allow controlled wrapping with proper alignment
+Eliminate the need for horizontal scrolling on smaller screens
+
+css/* Add this to your CSS */
+.expenses-table {
+   width: 100%;
+  table-layout: fixed;
+}
+
+/* Desktop layout (larger screens) */
+@media (min-width: 992px) {
+  .date-col { width: 15%; }
+  .description-col { width: 25%; }
+  .category-col { width: 20%; }
+  .amount-col { width: 15%; }
+  .actions-col { width: 25%; }
+}
+
+/* Tablet layout */
+@media (min-width: 768px) and (max-width: 991px) {
+  .date-col { width: 15%; }
+  .description-col { width: 25%; }
+  .category-col { width: 20%; }
+  .amount-col { width: 15%; }
+  .actions-col { width: 25%; }
+}
+
+/* Regular desktop layout */
+@media (min-width: 768px) {
+  .expenses-table th,
+  .expenses-table td {
+    vertical-align: middle;
+      padding: 0.75rem;
+  }
+
+  .date-col {
+    width: 15%;
+  }
+
+  .description-col {
+    width: 25%;
+  }
+
+  .category-col {
+    width: 20%;
+  }
+
+  .amount-col {
+    width: 15%;
+  }
+
+  .actions-col {
+    width: 25%;
+  }
+}
+
+/* Mobile layout */
+@media (max-width: 767px) {
+  /* Transform the table to a card-like display on mobile */
+  .expenses-table thead {
+    display: none; /* Hide table headers on mobile */
+  }
+
+  .expenses-table,
+  .expenses-table tbody,
+  .expenses-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .expenses-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+  }
+
+  .expenses-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .expenses-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Add data labels on mobile */
+  .expenses-table td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    width: 40%;
+    text-align: left;
+  }
+
+  /* Style for the action buttons container */
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* Total row styling */
+  .expenses-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-top: 2px solid #dee2e6;
+    background-color: #f8f9fa;
+  }
+}
+/* Extra small screens */
+@media (max-width: 575px) {
+  .expenses-table {
+    font-size: 0.85rem;
+  }
+
+  .category-badge {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0.25rem 0.5rem;
+  }
+
+  /* Stack buttons vertically on very small screens */
+  .actions-col .btn-sm {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.25rem;
+  }
+}
+
+/* ===== BUDGET PAGE ===== */
+
+.budget-card {
+    margin-bottom: 2rem;
+}
+
+.budget-table {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.budget-table th,
+.budget-table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+
+/* Budget Progress Bar */
+.progress {
+    height: 10px;
+    border-radius: 5px;
+    overflow: visible;
+    margin-top: 5px;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    position: relative;
+    border-radius: 5px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    transition: width 0.6s ease;
+}
+
+.progress-bar.bg-success {
+    background-color: var(--secondary-color) !important;
+}
+
+.progress-bar.bg-warning {
+    background-color: var(--warning-color) !important;
+}
+
+.progress-bar.bg-danger {
+    background-color: var(--danger-color) !important;
+}
+
+/* Progress percentage display */
+.progress-percentage {
+    position: absolute;
+    right: 0;
+    top: -18px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.remaining-amount,
+.budget-status {
+    color: var(--text-color);
+}
+
+/* Mobile view (less than 768px) */
+@media (max-width: 767.98px) {
+  /* Convert table to card view on mobile */
+  .budget-table,
+  .budget-table thead,
+  .budget-table tbody,
+  .budget-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .budget-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .budget-table tr {
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+  }
+
+  .budget-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    text-align: right;
+    border: none;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  .budget-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Add data labels on mobile */
+  .budget-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    text-align: left;
+    flex: 1;
+    padding-right: 0.5rem;
+  }
+
+  .budget-table td > * {
+    flex: 2;
+    text-align: right;
+  }
+
+  /* Progress bar styling for mobile */
+  .progress-container {
+    width: 60%;
+    min-width: 100px;
+    margin-left: auto;
+  }
+
+  /* Action button alignment */
+  .budget-table td.actions-cell {
+    justify-content: flex-end;
+  }
+
+  .budget-table td.actions-cell::before {
+    content: "";
+    flex: 0;
+  }
+}
+
+/* Currency and balance styling */
+.currency-display {
+  font-weight: 500;
+}
+
+.balance-positive {
+  color: #28a745;
+}
+
+.balance-negative {
+  color: #dc3545;
+}
+
+
+/* ===== EXPENSES PAGE ===== */
+
+.expense-history h2 {
+    color: var(--text-color);
+}
+
+.expense-overview {
+    color: var(--text-color);
+}
+
+
+/* ===== AUTHENTICATION PAGES ===== */
+
+/* Hide navbar on login/register pages */
+body.auth-page .navbar {
+    display: none;
+}
+
+/* Auth container */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 2rem);
+    padding: 1rem;
+}
+
+/* Auth card */
+.auth-card {
+    width: 100%;
+    max-width: 450px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    background-color: var(--card-bg);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Auth header */
+.auth-header {
+    padding: 2rem 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-header h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+    gap: 0.75rem;
+}
+
+.auth-header p {
+    margin-bottom: 0;
+}
+
+/* Auth body */
+.auth-body {
+    padding: 1.5rem;
+}
+
+/* Auth tabs */
+.auth-tabs {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 0.75rem 0;
+    font-weight: 600;
+    color: var(--gray);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+}
+
+.auth-tab-btn:hover {
+    color: var(--primary-light);
+}
+
+.auth-tab-btn.active {
+    color: var(--primary-color);
+}
+
+.auth-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* Auth panels */
+.auth-panel {
+    display: none;
+}
+
+.auth-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.auth-submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.auth-btn-container {
+    margin-top: 1.5rem;
+}
+
+
+/* ========== RESPONSIVE STYLES ========== */
+
+/* Mobile nav adjustments */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        margin-top: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .navbar-nav .nav-link.active::after {
+        bottom: 0;
+        height: 2px;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 577px) and (max-width: 991px) {
+    .dashboard .card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Mobile-specific styles */
+@media (max-width: 767.98px) {
+    .chart-container {
+        height: 300px;
+    }
+
+    .card {
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    /* Adjust font sizes for mobile */
+    .card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .card-title {
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .text-muted {
+        font-size: 0.75rem;
+    }
+
+    #pieChart {
+        max-height: 180px;
+    }
+
+    /* Dashboard stats for mobile */
+    .col-md-3 .card h2 {
+        font-size: 1.75rem;
+    }
+
+    /* Make sure charts don't overflow */
+    .chart-container canvas {
+        max-width: 100% !important;
+    }
+
+    /* Fix chart legend positioning for mobile */
+    .chartjs-legend {
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    .chartjs-legend li {
+        margin: 0.15rem 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    /* Improve progress bar visibility */
+    .progress {
+        height: 8px;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 576px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard .card h2 {
+        font-size: 1.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .auth-container {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+
+    .auth-card {
+        margin-top: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .auth-header {
+        padding: 1.5rem 1rem 1rem;
+    }
+
+    .auth-body {
+        padding: 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+    .chart-container {
+        height: 180px;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .card h2 {
+        font-size: 1.25rem;
+    }
+
+    #pieChart {
+        max-height: 200px;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    /* Stack charts vertically with more space on small screens */
+    .col-12.col-md-6.mb-3 {
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Add some breathing room for the container */
+    .container-fluid {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    /* Improve spacing between stacked cards */
+    .g-3 {
+        --bs-gutter-y: 0.5rem;
+    }
+}
+
+
+/* ========== PRINT STYLES ========== */
+
+@media print {
+    footer,
+    .btn,
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        padding: 0;
+        background: white;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    main {
+        width: 100%;
+        padding: 0;
+    }
+}
+
+
+/* ========== ANIMATIONS ========== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

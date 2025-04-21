@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Budget Management</h1>
+
+    <!-- Budget Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Set Monthly Budget</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('budget.budget_management') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="month">Month</label>
+                        {{ form.month(class="form-control", id="month") }}
+                        {% if form.month.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.month.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="year">Year</label>
+                        {{ form.year(class="form-control", id="year") }}
+                        {% if form.year.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.year.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label for="budget_amount">Budget Amount</label>
+                        {{ form.budget_amount(class="form-control", id="budget_amount", placeholder="Enter amount") }}
+                        {% if form.budget_amount.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.budget_amount.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget List -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Your Budgets</h5>
+        </div>
+        <div class="card-body">
+            {% if budget_stats %}
+                <div class="table-responsive">
+                    <table class="table table-striped text-center">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Month/Year</th>
+                                <th class="text-center">Budget Amount</th>
+                                <th class="text-center">Expenses</th>
+                                <th class="text-center">Remaining</th>
+                                <th class="text-center">Used (%)</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for budget in budget_stats %}
+                                <tr>
+                                    <td class="text-center">{{ budget.month }} {{ budget.year }}</td>
+                                    <td class="text-center currency-display">${{ "%.2f"|format(budget.budget_amount) }}</td>
+                                    <td class="text-center currency-display">${{ "%.2f"|format(budget.total_expenses) }}</td>
+                                    <td class="text-center">
+                                        <span class="currency-display {% if budget.remaining < 0 %}balance-negative{% else %}balance-positive{% endif %}">
+                                            ${{ "%.2f"|format(budget.remaining) }}
+                                        </span>
+                                    </td>
+                                    <!-- Replace the existing "Used (%)" column in the table with this -->
+<td class="text-center">
+    <div class="progress-container" style="position: relative; width: 100%; min-width: 120px;">
+        <div class="progress" style="height: 20px;">
+            <div class="progress-bar {% if budget.percentage_used > 100 %}bg-danger{% elif budget.percentage_used > 80 %}bg-warning{% else %}bg-success{% endif %}"
+                 role="progressbar"
+                 style="width: {{ budget.percentage_used if budget.percentage_used <= 100 else 100 }}%;"
+                 aria-valuenow="{{ budget.percentage_used }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+        </div>
+        <span class="progress-label" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 0.8rem; font-weight: bold; color: #333; text-shadow: 0px 0px 2px #fff;">
+            {{ "%.0f"|format(budget.percentage_used) }}%
+        </span>
+    </div>
+</td>
+                                    <td class="text-center">
+                                        <form action="{{ url_for('budget.delete_budget', budget_id=budget.id) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this budget?');">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You haven't set any budgets yet. Use the form above to create your first budget!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Budget Visualization -->
+    {% if budget_stats and budget_stats|length > 0 %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Budget Visualization</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height:400px;">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Store budget data as JSON for the chart -->
+        <script>
+            // Prepare data for the chart
+            const chartData = {
+                labels: {{ budget_stats|map(attribute='month')|list|tojson|safe }}.map((month, index) => {
+                    return month + ' ' + {{ budget_stats|map(attribute='year')|list|tojson|safe }}[index];
+                }),
+                budgetAmounts: {{ budget_stats|map(attribute='budget_amount')|list|tojson|safe }},
+                expenseAmounts: {{ budget_stats|map(attribute='total_expenses')|list|tojson|safe }}
+            };
+        </script>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Budget Chart if data exists
+        if (typeof chartData !== 'undefined') {
+            initializeBudgetChart();
+        }
+
+        // Initialize the progress percentage displays
+        initializeProgressBars();
+    });
+
+    function initializeBudgetChart() {
+        const ctx = document.getElementById('budgetChart').getContext('2d');
+
+        // Create the chart using the data directly from the Python backend
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
+                        label: 'Budget Amount',
+                        data: chartData.budgetAmounts,
+                        backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Expenses',
+                        data: chartData.expenseAmounts,
+                        backgroundColor: 'rgba(231, 76, 60, 0.5)',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount ($)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('en-US', {
+                                        style: 'currency',
+                                        currency: 'USD'
+                                    }).format(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+</script>
+{% endblock %}

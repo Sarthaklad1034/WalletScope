@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="mb-2">Expenses</h1>
+        <p class="text-muted">Track and manage your spending</p>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+            <i class="bi bi-plus"></i> Add Expense
+        </button>
+    </div>
+</div>
+
+<div class="card mb-4">
+<div class="card-header">
+  <div class="row align-items-center">
+    <div class="col-12 col-md-4 mb-3 mb-md-0">
+      <h5 class="mb-0">Expense History</h5>
+    </div>
+    <div class="col-12 col-md-8">
+      <form method="GET" action="{{ url_for('expenses.expense_list') }}" class="row g-2 justify-content-md-end">
+        <div class="col-8 col-md-6 col-lg-5">
+          <select name="filter" class="form-select">
+            <option value="all" {% if request.args.get('filter') == 'all' or not request.args.get('filter') %}selected{% endif %}>All Categories</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}" {% if request.args.get('filter') == category.id|string %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-4 col-md-3 col-lg-2">
+          <button type="submit" class="btn btn-outline-secondary w-100">Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+  <div class="card-body p-0">
+    <table class="table expenses-table">
+      <thead>
+        <tr>
+          <th class="date-col">Date</th>
+          <th class="description-col">Description</th>
+          <th class="category-col">Category</th>
+          <th class="amount-col">Amount</th>
+          <th class="actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if expenses %}
+          {% for expense in expenses %}
+          <tr>
+            <td data-label="Date" class="date-col">{{ expense.date.strftime('%Y-%m-%d') }}</td>
+            <td data-label="Description" class="description-col">{{ expense.description }}</td>
+            <td data-label="Category" class="category-col">
+              <span class="badge rounded-pill" style="background-color: {{ expense.category.color if expense.category is mapping else '#6c757d' }}">
+                {{ expense.category.name if expense.category is mapping else expense.category }}
+              </span>
+            </td>
+            <td data-label="Amount" class="amount-col">${{ '%0.2f'|format(expense.amount) }}</td>
+            <td data-label="Actions" class="actions-col">
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-outline-secondary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editExpenseModal"
+                  data-expense-id="{{ expense.id }}"
+                  data-expense-date="{{ expense.date.strftime('%Y-%m-%d') }}"
+                  data-expense-description="{{ expense.description }}"
+                  data-expense-amount="{{ '%0.2f'|format(expense.amount) }}"
+                  data-expense-category="{{ expense.category_id if expense.category is mapping else 1 }}">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-outline-danger"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteExpenseModal"
+                  data-expense-id="{{ expense.id }}"
+                  data-expense-description="{{ expense.description }}">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="5" class="text-center py-4">
+              <p class="mb-0 text-muted">No expenses recorded yet.</p>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% if expenses %}
+  <div class="card-footer">
+    <div class="d-flex justify-content-between align-items-center expenses-total">
+      <span>Total: <strong>${{ '%0.2f'|format(total_amount) }}</strong></span>
+      <nav aria-label="Expense pagination">
+        <ul class="pagination pagination-sm mb-0">
+          {% if pagination.has_prev %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('expenses.expense_list', page=pagination.prev_num, filter=request.args.get('filter', 'all')) }}">Previous</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+          </li>
+          {% endif %}
+
+          {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+              {% if page_num == pagination.page %}
+              <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="{{ url_for('expenses.expense_list', page=page_num, filter=request.args.get('filter', 'all')) }}">{{ page_num }}</a>
+              </li>
+              {% endif %}
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="{{ url_for('expenses.expense_list', page=pagination.next_num, filter=request.args.get('filter', 'all')) }}">Next</a>
+          </li>
+          {% else %}
+          <li class="page-item disabled">
+            <span class="page-link">Next</span>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal fade" id="addExpenseModal" tabindex="-1" aria-labelledby="addExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addExpenseModalLabel">Add New Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('expenses.add_expense') }}">
+                <div class="modal-body">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.date.label(class="form-label") }}
+                        {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date") }}
+                        {% if form.date.errors %}
+                            {% for error in form.date.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else "")) }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), placeholder="0.00") }}
+                            {% if form.amount.errors %}
+                                {% for error in form.amount.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category_id.label(class="form-label") }}
+                        {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else "")) }}
+                        {% if form.category_id.errors %}
+                            {% for error in form.category_id.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Expense Modal -->
+<div class="modal fade" id="editExpenseModal" tabindex="-1" aria-labelledby="editExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editExpenseModalLabel">Edit Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('expenses.edit_expense', expense_id=0) }}" id="editExpenseForm">
+                <div class="modal-body">
+                    {{ form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ form.date.label(class="form-label") }}
+                        {{ form.date(class="form-control" + (" is-invalid" if form.date.errors else ""), type="date", id="editDate") }}
+                        {% if form.date.errors %}
+                            {% for error in form.date.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), id="editDescription") }}
+                        {% if form.description.errors %}
+                            {% for error in form.description.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.amount.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), placeholder="0.00", id="editAmount") }}
+                            {% if form.amount.errors %}
+                                {% for error in form.amount.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category_id.label(class="form-label") }}
+                        {{ form.category_id(class="form-select" + (" is-invalid" if form.category_id.errors else ""), id="editCategory") }}
+                        {% if form.category_id.errors %}
+                            {% for error in form.category_id.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Expense Modal -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-labelledby="deleteExpenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteExpenseModalLabel">Delete Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete expense: <strong id="deleteExpenseDescription"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('expenses.delete_expense', expense_id=0) }}" id="deleteExpenseForm">
+                    {% if delete_form %}
+                    {{ delete_form.hidden_tag() }}
+                    {{ delete_form.submit(class="btn btn-danger", value="Delete") }}
+                    {% else %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Edit expense modal data
+        const editExpenseModal = document.getElementById('editExpenseModal');
+        if (editExpenseModal) {
+            editExpenseModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const expenseId = button.getAttribute('data-expense-id');
+                const expenseDate = button.getAttribute('data-expense-date');
+                const expenseDescription = button.getAttribute('data-expense-description');
+                const expenseAmount = button.getAttribute('data-expense-amount');
+                const expenseCategory = button.getAttribute('data-expense-category');
+
+                const form = document.getElementById('editExpenseForm');
+                form.action = "{{ url_for('expenses.edit_expense', expense_id=0) }}".replace('0', expenseId);
+
+                document.getElementById('editDate').value = expenseDate;
+                document.getElementById('editDescription').value = expenseDescription;
+                document.getElementById('editAmount').value = expenseAmount;
+                document.getElementById('editCategory').value = expenseCategory;
+            });
+        }
+
+        // Delete expense modal data
+        const deleteExpenseModal = document.getElementById('deleteExpenseModal');
+        if (deleteExpenseModal) {
+            deleteExpenseModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const expenseId = button.getAttribute('data-expense-id');
+                const expenseDescription = button.getAttribute('data-expense-description');
+
+                const form = document.getElementById('deleteExpenseForm');
+                form.action = "{{ url_for('expenses.delete_expense', expense_id=0) }}".replace('0', expenseId);
+
+                document.getElementById('deleteExpenseDescription').textContent = expenseDescription;
+            });
+        }
+    });
+</script>
+{% endblock %}
