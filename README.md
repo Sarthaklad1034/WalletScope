@@ -30,8 +30,8 @@ WalletScope is a comprehensive personal finance management application that help
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/walletscope.git
-cd walletscope
+git clone https://github.com/Sarthaklad1034/WalletScope.git
+cd WalletScope
 ```
 
 2. Create and activate virtual environment
@@ -108,9 +108,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📞 Contact
 
-Your Name - [@yourusername](https://twitter.com/yourusername)
+Linkedin Profile - [@sarthak-lad](https://www.linkedin.com/in/sarthak-lad/)
 
-Project Link: [https://github.com/yourusername/walletscope](https://github.com/yourusername/walletscope)
+Project Link: [WalletScope](https://github.com/Sarthaklad1034/WalletScope.git)
 
 ---
 
